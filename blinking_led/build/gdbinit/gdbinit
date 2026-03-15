@@ -1,0 +1,2 @@
+source /home/barbossa/esp/blinking_led/build/gdbinit/symbols
+source /home/barbossa/esp/blinking_led/build/gdbinit/connect

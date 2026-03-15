@@ -1,0 +1,44 @@
+Command: /home/barbossa/.espressif/python_env/idf6.1_py3.14_env/bin/python /home/barbossa/esp/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 /home/barbossa/esp/blinking_led/build/blinking_led.elf /home/barbossa/esp/blinking_led/build/bootloader/bootloader.elf -m '/home/barbossa/.espressif/python_env/idf6.1_py3.14_env/bin/python' '/home/barbossa/esp/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+[0m--- 0x40080400: [0;33m_invalid_pc_placeholder[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m2259[0m
+[0m--- 0x40080644: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0m--- 0x400d6b4a: [0;33mtask_wdt_timeout_handling[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m436[0m
+[0m--- 0x400d6f1c: [0;33mtask_wdt_isr[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m509[0m
+[0m--- 0x40082cb1: [0;33m_xt_lowint1[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m1264[0m
+[0m--- 0x400d57f6: [0;33mdelay_ms[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m29[0m
+[0m--- 0x400d5820: [0;33mapp_main[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m39[0m
+[0m--- 0x400d3842: [0;33mmain_task[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/app_startup.c[0m[0m:[1;31m199[0m
+[0m--- 0x400d9ed9: [0;33mvPortTaskWrapper[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c[0m[0m:[1;31m143[0m
+[0m--- 0x400d6b4a: [0;33mtask_wdt_timeout_handling[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m436[0m
+[0m--- 0x400d6f1c: [0;33mtask_wdt_isr[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m509[0m
+[0m--- 0x40082cb1: [0;33m_xt_lowint1[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m1264[0m
+[0m--- 0x400d57f6: [0;33mdelay_ms[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m29[0m
+[0m--- 0x400d582e: [0;33mapp_main[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m41[0m
+[0m--- 0x400d3842: [0;33mmain_task[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/app_startup.c[0m[0m:[1;31m199[0m
+[0m--- 0x400d9ed9: [0;33mvPortTaskWrapper[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c[0m[0m:[1;31m143[0m
+[0m--- 0x400d6b4a: [0;33mtask_wdt_timeout_handling[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m436[0m
+[0m--- 0x400d6f1c: [0;33mtask_wdt_isr[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m509[0m
+[0m--- 0x40082cb1: [0;33m_xt_lowint1[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m1264[0m
+[0m--- 0x400d921c: [0;33mget_count[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m11[0m
+[0m--- 0x400d57f9: [0;33mdelay_ms[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m31[0m
+[0m--- 0x400d582e: [0;33mapp_main[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m41[0m
+[0m--- 0x400d3842: [0;33mmain_task[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/app_startup.c[0m[0m:[1;31m199[0m
+[0m--- 0x400d9ed9: [0;33mvPortTaskWrapper[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c[0m[0m:[1;31m143[0m
+[0m--- 0x400d6b4a: [0;33mtask_wdt_timeout_handling[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m436[0m
+[0m--- 0x400d6f1c: [0;33mtask_wdt_isr[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m509[0m
+[0m--- 0x40082cb1: [0;33m_xt_lowint1[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m1264[0m
+[0m--- 0x400d921c: [0;33mget_count[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m11[0m
+[0m--- 0x400d57f9: [0;33mdelay_ms[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m31[0m
+[0m--- 0x400d5820: [0;33mapp_main[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m39[0m
+[0m--- 0x400d3842: [0;33mmain_task[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/app_startup.c[0m[0m:[1;31m199[0m
+[0m--- 0x400d9ed9: [0;33mvPortTaskWrapper[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c[0m[0m:[1;31m143[0m
+[0m--- 0x400d6b4a: [0;33mtask_wdt_timeout_handling[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m436[0m
+[0m--- 0x400d6f1c: [0;33mtask_wdt_isr[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/esp_system/task_wdt/task_wdt.c[0m[0m:[1;31m509[0m
+[0m--- 0x40082cb1: [0;33m_xt_lowint1[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/xtensa/xtensa_vectors.S[0m[0m:[1;31m1264[0m
+[0m--- 0x400d921c: [0;33mget_count[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m11[0m
+[0m--- 0x400d57f9: [0;33mdelay_ms[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m31[0m
+[0m--- 0x400d582e: [0;33mapp_main[0m[0m at [0;32m/home/barbossa/esp/blinking_led/main/blinking_led.c[0m[0m:[1;31m41[0m
+[0m--- 0x400d3842: [0;33mmain_task[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/app_startup.c[0m[0m:[1;31m199[0m
+[0m--- 0x400d9ed9: [0;33mvPortTaskWrapper[0m[0m at [0;32m/home/barbossa/esp/esp-idf/components/freertos/FreeRTOS-Kernel/portable/xtensa/port.c[0m[0m:[1;31m143[0m
+[0m
