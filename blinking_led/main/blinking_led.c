@@ -9,21 +9,46 @@
 
 // Define the configures of Time Group 
 #define TIMG0_T0CONFIG_REG (*(volatile uint32_t *) 0x3FF5F000)
-// Define the Interrupt Matrix register for Time Group to route the peripheral interrupt
-#define DPORT_PRO_TG_T0_LEVEL_INT_MAP_REG (*(volatile uint32_t *) 0x3FF0013C)
 // Alarm value register
 #define TIMG_T0ALARM_LO_REG (*(volatile uint32_t *) 0x3FF5F010)
-// Timer 0 interrupt
+#define TIMG_T0ALARM_HI_REG (*(volatile uint32_t *) 0x3FF5F014)
+// Timer 0 interrupt and Flags
 #define TIMG_INT_ENA_REG (*(volatile uint32_t *) 0x3FF5F098)
-
+#define TIMG_INT_CLR_REG (*(volatile uint32_t *) 0x3FF5F0A4)
+#define TIMG_INT_ST_REG (*(volatile uint32_t *) 0x3FF5F09C)
 // Reload Timers
 #define TIMG0_T0LOAD_HI_REG (*(volatile uint32_t *) 0x3FF5F01C)
 #define TIMG0_T0LOAD_LO_REG (*(volatile uint32_t *) 0x3FF5F018)
 #define TIMG0_T0LOAD_REG (*(volatile uint32_t *) 0x3FF5F020)
 
+// Define the Interrupt Matrix register for Time Group to route the peripheral interrupt
+#define DPORT_PRO_TG_T0_LEVEL_INT_MAP_REG (*(volatile uint32_t *) 0x3FF0013C)
+
+//  T0CONFIG bit positions
+//  Bit 31: T0_EN           (enable timer)
+//  Bit 30: T0_INCREASE     (1 = count up)
+//  Bit 29: T0_AUTORELOAD   (reload on alarm)
+//  Bits 28:13: T0_DIVIDER  (16-bit clock divider)
+//  Bit 11: T0_LEVEL_INT_EN (enable level interrupt)
+//  Bit 10: T0_ALARM_EN     (enable alarm)
+#define T0_EN          		(1 << 31)
+#define T0_INCREASE         (1 << 30)
+#define T0_AUTORELOAD       (1 << 29)
+#define T0_DIVIDER_SHIFT    13
+#define T0_DIVIDER_MASK     (0xFFFF << T0_DIVIDER_SHIFT)
+#define T0_LEVEL_INT_EN     (1 << 11)
+#define T0_ALARM_EN         (1 << 10)
+
+// APB clock = 80 MHz, divider = 80 => timer clock = 1 MHz (1 tick = 1 microsecond)
+// Alarm at 500000 => interrupt every 500 ms => LED toggles at 1 Hz
+#define TIMER_DIVIDER       80
+#define ALARM_VALUE         500000
+
 #define PIN 2
 
 #define private static
+
+private volatile int led_state = 0;
 
 private inline void enable_cpu_interrupt(uint32_t line) {
     uint32_t intenable;
@@ -37,6 +62,86 @@ private inline void enable_cpu_interrupt(uint32_t line) {
      * 	or a2, a2, a3           ; a2 = a2 | a3
      * 	wsr a2, intenable       ; write back to INTENABLE
 	*/
+}
+
+private inline void clear_cpu_interrupt(uint_32t line){
+	asm volatile("wsr %0, intclear" :: "r"(1 << line));
+}
+
+private void timer_isr() {
+	// Clear the timer interrupt flag in the Timer Group
+	TIMG_INT_CLR_REG = (1 << 0);
+	// Clear the CPU side for safety too
+	clear_cpu_interrupt(CPU_INT_LINE);
+
+	if (led_state) {
+        GPIO_OUT_W1TC_REG = (1 << PIN);   // LOW
+        led_state = 0;
+    } else {
+        GPIO_OUT_W1TS_REG = (1 << PIN);   // HIGH
+        led_state = 1;
+    }
+
+	// Re-enable alarm
+    TIMG0_T0CONFIG_REG |= T0_ALARM_EN;
+
+	// Re-enable timer interrupt in Timer Group
+    TIMG_INT_ENA_REG |= (1 << 0);
+}
+
+//  When CPU interrupt line fires, it jumps to the corresponding interrupt vector. We hook level 6 by providing a
+//  handler that saves minimal context, calls our C ISR, restores context, and returns via 'rfi'
+// 	This replaces esp_intr_alloc()
+
+void __attribute__((naked, section(".iram1"))) _xt_timer0_handler(void) {
+    asm volatile(
+        // Save registers we'll overwrite (a0, a2, a3)
+        "entry  a1, 32          \n"  // create stack frame
+        "call0  timer_isr       \n"  // call our C handler
+        "retw                   \n"  // return from windowed call
+    );
+}
+
+private void timer_init(void) {
+    // Stop the timer while configuring
+    TIMG0_T0CONFIG_REG &= ~T0_EN;
+
+    // Clear the divider field, then set divider to 80
+    TIMG0_T0CONFIG_REG &= ~T0_DIVIDER_MASK;
+    TIMG0_T0CONFIG_REG |= (TIMER_DIVIDER << T0_DIVIDER_SHIFT);
+
+    // Count up
+    TIMG0_T0CONFIG_REG |= T0_INCREASE;
+
+    // Auto-reload counter on alarm
+    TIMG0_T0CONFIG_REG |= T0_AUTORELOAD;
+
+    // Enable level interrupt generation
+    TIMG0_T0CONFIG_REG |= T0_LEVEL_INT_EN;
+
+    // Enable alarm
+    TIMG0_T0CONFIG_REG |= T0_ALARM_EN;
+
+    // Load counter with 0
+    TIMG0_T0LOAD_HI_REG = 0;
+    TIMG0_T0LOAD_LO_REG = 0;
+    TIMG0_T0LOAD_REG    = 1;
+
+    // Set alarm value
+    TIMG_T0ALARM_HI_REG = 0;
+    TIMG_T0ALARM_LO_REG = ALARM_VALUE;
+
+    // Enable timer interrupt in Timer Group
+    TIMG_INT_ENA_REG |= (1 << 0);
+
+    // Route TG0_T0 peripheral interrupt to CPU interrupt line
+    DPORT_PRO_TG_T0_LEVEL_INT_MAP_REG = CPU_INT_LINE;
+
+    // Enable that CPU interrupt line in the Xtensa INTENABLE register
+    enable_cpu_interrupt(CPU_INT_LINE);
+
+    // Start the timer
+    TIMG0_T0CONFIG_REG |= T0_EN;
 }
 
 private inline uint32_t get_count(void) {
@@ -55,54 +160,21 @@ private inline uint32_t get_count(void) {
 }
 
 private void delay_ms(uint32_t ms) {
-	uint32_t cycles_per_ms = 240000; // 240MHz by default
-	uint32_t start = get_count();
-	uint32_t wait = ms * cycles_per_ms;
- 
-	while ((get_count() - start) < wait);
-}
-
-private void timer_init() {
-	DPORT_PRO_TG_T0_LEVEL_INT_MAP_REG = 1;	// route to CPU Interrupt line 1
-	
-	// Stop Timer
-	TIMG0_T0CONFIG_REG &= ~(1 << 31);
-
-	// Set divider to 80
-	TIMG0_T0CONFIG_REG |= (80 << 13);
-
-	// Enable Autoreload
-	TIMG0_T0CONFIG_REG |= (1 << 29);
-
-	// Enable Alarm
-	TIMG0_T0CONFIG_REG |= (1 << 10);
-	
-	// load counter = 1
-	TIMG0_T0LOAD_HI_REG = 0;
-	TIMG0_T0LOAD_LO_REG = 0;
-	TIMG0_T0LOAD_REG = 1;
-
-	// 1000 at 1MHz = 1ms
-	TIMG_T0ALARM_LO_REG = 1000;
-	
-	// Enable Time Interrupt in Time Group
-	TIMG_INT_ENA_REG |= (1 << 0);
-
-	enable_cpu_interrupt(1);
-
-	// Enable Timer
-	TIMG0_T0CONFIG_REG |= (1 << 31);
+    uint32_t cycles_per_ms = 240000; // 240 MHz CPU clock
+    uint32_t start = get_count();
+    uint32_t wait = ms * cycles_per_ms;
+    while ((get_count() - start) < wait);
 }
 
 void app_main(void) {
-	GPIO_ENABLE_W1TS_REG = (1 << PIN); // enable the GPIO 
+    // Enable GPIO pin as output
+    GPIO_ENABLE_W1TS_REG = (1 << PIN);
 
-	timer_init();
+    // Start timer-driven blinking — the ISR handles everything
+    timer_init();
 
-	while (1){
-		GPIO_OUT_W1TS_REG = (1 << PIN);
-		delay_ms(500);
-		GPIO_OUT_W1TC_REG = (1 << PIN);
-		delay_ms(500);
-	}
+    while (1) {
+        // CPU is free — LED toggling is handled purely by the timer ISR
+        asm volatile("nop");
+    }
 }
