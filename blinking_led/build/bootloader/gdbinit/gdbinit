@@ -1,2 +1,0 @@
-source /home/barbossa/esp/blinking_led/build/bootloader/gdbinit/symbols
-source /home/barbossa/esp/blinking_led/build/bootloader/gdbinit/connect
